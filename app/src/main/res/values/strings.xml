@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Profile</string>
+    <string name="avatar_label">Select Avatar</string>
+    <string name="main_invalid_data">Invalid data</string>
+    <string name="main_save">Save</string>
+    <string name="main_saved_succesfully">Student saved successfully</string>
+    <string name="main_error_saving">Error saving student</string>
+    <string name="avatar_select">Select</string>
+    <!-- TODO -->
+</resources>
