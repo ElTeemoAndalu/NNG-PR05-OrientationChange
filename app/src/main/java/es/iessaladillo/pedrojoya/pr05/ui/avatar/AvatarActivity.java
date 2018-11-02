@@ -10,16 +10,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
-import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProviders;
 import es.iessaladillo.pedrojoya.pr05.R;
-import es.iessaladillo.pedrojoya.pr05.data.local.Database;
 import es.iessaladillo.pedrojoya.pr05.data.local.model.Avatar;
 import es.iessaladillo.pedrojoya.pr05.utils.ResourcesUtils;
 
@@ -28,7 +25,6 @@ public class AvatarActivity extends AppCompatActivity {
 
     private ArrayList<ImageView> imagesList;
     private ArrayList<TextView> namesList;
-    private final int LBL_IMGVIEWS_PER_PICTURE = 2;
     private int avatarCount;
     private AvatarActivityViewModel model;
 
@@ -96,6 +92,7 @@ public class AvatarActivity extends AppCompatActivity {
         namesList.add(ActivityCompat.requireViewById(this, R.id.lblAvatar5));
         namesList.add(ActivityCompat.requireViewById(this, R.id.lblAvatar6));
 
+        int LBL_IMGVIEWS_PER_PICTURE = 2;
         avatarCount = constLayout.getChildCount() / LBL_IMGVIEWS_PER_PICTURE;
 
         setAvatars();

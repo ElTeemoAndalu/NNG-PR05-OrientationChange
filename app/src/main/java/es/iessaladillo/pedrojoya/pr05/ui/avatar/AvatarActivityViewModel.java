@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel;
 import es.iessaladillo.pedrojoya.pr05.data.local.Database;
 import es.iessaladillo.pedrojoya.pr05.data.local.model.Avatar;
 
-public class AvatarActivityViewModel extends ViewModel {
+class AvatarActivityViewModel extends ViewModel {
     private Avatar selectedAvatar;
     private Database database;
     private List<Avatar> avatarList;

@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel;
 import es.iessaladillo.pedrojoya.pr05.data.local.Database;
 import es.iessaladillo.pedrojoya.pr05.data.local.model.Avatar;
 
-public class MainActivityViewModel extends ViewModel {
+class MainActivityViewModel extends ViewModel {
     private Database database;
     private Avatar profileAvatar;
     private boolean firstLaunch = false;
@@ -17,15 +17,16 @@ public class MainActivityViewModel extends ViewModel {
         this.profileAvatar = profileAvatar;
     }
 
-    public Database getDatabase() {
+    private Database getDatabase() {
         if (database == null) {
             database = Database.getInstance();
         }
         return database;
     }
 
-    public void setDefaultAvatar(){
-        if(!firstLaunch){
+    //Sets the avatar to the default one (One time use)
+    public void setDefaultAvatar() {
+        if (!firstLaunch) {
             setProfileAvatar(getDatabase().getDefaultAvatar());
             firstLaunch = true;
         }

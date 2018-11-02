@@ -15,16 +15,12 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.android.material.snackbar.Snackbar;
-
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.lifecycle.ViewModelProviders;
 import es.iessaladillo.pedrojoya.pr05.R;
 import es.iessaladillo.pedrojoya.pr05.data.local.business.FieldEnabler;
-import es.iessaladillo.pedrojoya.pr05.data.local.model.Avatar;
 import es.iessaladillo.pedrojoya.pr05.ui.avatar.AvatarActivity;
 import es.iessaladillo.pedrojoya.pr05.utils.KeyboardUtils;
 import es.iessaladillo.pedrojoya.pr05.utils.SnackBarUtils;
@@ -86,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
         imgWeb = ActivityCompat.requireViewById(this, R.id.imgWeb);
 
         model.setDefaultAvatar();
-        setProfileAvatar();
+        configAvatarProfile();
 
         //Listeners
         imgAvatar.setOnClickListener(v -> selectAvatarImg());
@@ -198,7 +194,7 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void setProfileAvatar() {
+    private void configAvatarProfile() {
         imgAvatar.setTag(model.getProfileAvatar().getImageResId());
         imgAvatar.setImageResource(model.getProfileAvatar().getImageResId());
         lblAvatar.setText(model.getProfileAvatar().getName());
@@ -206,6 +202,9 @@ public class MainActivity extends AppCompatActivity {
 
     private void searchURL() {
         String url = txtFields[WEB].getText().toString();
+        if (!url.startsWith("http://")) {
+            url = String.format("http://%s", url);
+        }
         Intent lookForAddress = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
         startImplicitIntent(lookForAddress);
     }
@@ -271,13 +270,14 @@ public class MainActivity extends AppCompatActivity {
             model.setProfileAvatar(receivedIntent.getParcelableExtra(AvatarActivity.EXTRA_AVATAR));
         }
 
-        setProfileAvatar();
+        configAvatarProfile();
     }
 
     //Save checks all EditText in the activity, if these fufill the patterns required, the user is shown a snackbar
     //showing a success message, if not, the views that fail the requirements are show an error and a snakbar is also shown
     //with a message of failure
     private void save() {
+        KeyboardUtils.hideSoftKeyboard(this);
         if (validateAll()) {
             SnackBarUtils.showSnackBar(lblFields[NAME], getString(R.string.main_saved_succesfully));
         } else {
