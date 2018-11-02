@@ -23,7 +23,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.lifecycle.ViewModelProviders;
 import es.iessaladillo.pedrojoya.pr05.R;
-import es.iessaladillo.pedrojoya.pr05.data.local.Database;
 import es.iessaladillo.pedrojoya.pr05.data.local.business.FieldEnabler;
 import es.iessaladillo.pedrojoya.pr05.data.local.model.Avatar;
 import es.iessaladillo.pedrojoya.pr05.ui.avatar.AvatarActivity;
@@ -47,8 +46,7 @@ public class MainActivity extends AppCompatActivity {
     private final TextView[] lblFields = new TextView[EDITTEXT_QUANTITY];
     private String errorMsg;
     private ImageView imgEmail, imgPhone, imgAddress, imgWeb;
-    private Avatar profileAvatar;
-    Database database;
+    private MainActivityViewModel model;
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -59,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        model = ViewModelProviders.of(this).get(MainActivityViewModel.class);
         setupViews();
     }
 
@@ -86,8 +85,7 @@ public class MainActivity extends AppCompatActivity {
         imgAddress = ActivityCompat.requireViewById(this, R.id.imgAddress);
         imgWeb = ActivityCompat.requireViewById(this, R.id.imgWeb);
 
-        database = Database.getInstance();
-        profileAvatar = database.getDefaultAvatar();
+        model.setDefaultAvatar();
         setProfileAvatar();
 
         //Listeners
@@ -201,9 +199,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setProfileAvatar() {
-        imgAvatar.setTag(profileAvatar.getImageResId());
-        imgAvatar.setImageResource(profileAvatar.getImageResId());
-        lblAvatar.setText(profileAvatar.getName());
+        imgAvatar.setTag(model.getProfileAvatar().getImageResId());
+        imgAvatar.setImageResource(model.getProfileAvatar().getImageResId());
+        lblAvatar.setText(model.getProfileAvatar().getName());
     }
 
     private void searchURL() {
@@ -258,7 +256,7 @@ public class MainActivity extends AppCompatActivity {
 
     //It changes, including the picture and the name, the current avatar for one chosen by the user in another activity.
     private void selectAvatarImg() {
-        AvatarActivity.startForResult(this, RC_AVATAR, profileAvatar);
+        AvatarActivity.startForResult(this, RC_AVATAR, model.getProfileAvatar());
     }
 
     @Override
@@ -270,7 +268,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void getSelectedAvatar(Intent receivedIntent) {
         if (receivedIntent != null && receivedIntent.hasExtra(AvatarActivity.EXTRA_AVATAR)) {
-            profileAvatar = receivedIntent.getParcelableExtra(AvatarActivity.EXTRA_AVATAR);
+            model.setProfileAvatar(receivedIntent.getParcelableExtra(AvatarActivity.EXTRA_AVATAR));
         }
 
         setProfileAvatar();
@@ -289,7 +287,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    //It checks if all the edittexts pass the requirements and shows errors if thy do not
+    //It checks if all the edittexts pass the requirements and shows errors if they do not
     private boolean validateAll() {
         boolean checkName = TextUtils.isEmpty(txtFields[NAME].getText().toString());
         boolean checkEmail = ValidationUtils.isValidEmail(txtFields[EMAIL].getText().toString());

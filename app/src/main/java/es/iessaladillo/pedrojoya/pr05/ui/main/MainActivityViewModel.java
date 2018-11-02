@@ -7,6 +7,7 @@ import es.iessaladillo.pedrojoya.pr05.data.local.model.Avatar;
 public class MainActivityViewModel extends ViewModel {
     private Database database;
     private Avatar profileAvatar;
+    private boolean firstLaunch = false;
 
     public Avatar getProfileAvatar() {
         return profileAvatar;
@@ -24,7 +25,11 @@ public class MainActivityViewModel extends ViewModel {
     }
 
     public void setDefaultAvatar(){
-        setProfileAvatar(getDatabase().getDefaultAvatar());
+        if(!firstLaunch){
+            setProfileAvatar(getDatabase().getDefaultAvatar());
+            firstLaunch = true;
+        }
+
 
     }
 
