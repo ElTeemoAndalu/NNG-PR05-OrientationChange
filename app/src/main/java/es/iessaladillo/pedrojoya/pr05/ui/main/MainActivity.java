@@ -194,7 +194,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.mnuSave) {
-            // TODO
+            save();
             return true;
         }
         return super.onOptionsItemSelected(item);

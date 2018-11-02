@@ -12,11 +12,11 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
+import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProviders;
 import es.iessaladillo.pedrojoya.pr05.R;
 import es.iessaladillo.pedrojoya.pr05.data.local.Database;
@@ -25,28 +25,32 @@ import es.iessaladillo.pedrojoya.pr05.utils.ResourcesUtils;
 
 public class AvatarActivity extends AppCompatActivity {
 
-    private Avatar prvlySelectedAvatar, selectedAvatar;
-    private Database database;
+
     private ArrayList<ImageView> imagesList;
     private ArrayList<TextView> namesList;
     private final int LBL_IMGVIEWS_PER_PICTURE = 2;
     private int avatarCount;
-    private List<Avatar> avatarList;
+    private AvatarActivityViewModel model;
 
     @VisibleForTesting
     public static final String EXTRA_AVATAR = "EXTRA_AVATAR";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_avatar);
-        getIntentData(getIntent());
+        model = ViewModelProviders.of(this).get(AvatarActivityViewModel.class);
+        if (!model.isIntentRetrieved()) {
+            getIntentData(getIntent());
+            model.setIntentRetrieved(true);
+        }
         setupViews();
     }
 
     private void getIntentData(Intent intent) {
         if (intent != null && intent.hasExtra(EXTRA_AVATAR)) {
-            prvlySelectedAvatar = intent.getParcelableExtra(EXTRA_AVATAR);
+            model.setSelectedAvatar(intent.getParcelableExtra(EXTRA_AVATAR));
         }
     }
 
@@ -59,7 +63,8 @@ public class AvatarActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.mnuSelect) {
-            // TODO
+            model.setIntentRetrieved(false);
+            finish();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -91,14 +96,11 @@ public class AvatarActivity extends AppCompatActivity {
         namesList.add(ActivityCompat.requireViewById(this, R.id.lblAvatar5));
         namesList.add(ActivityCompat.requireViewById(this, R.id.lblAvatar6));
 
-        database = Database.getInstance();
-
         avatarCount = constLayout.getChildCount() / LBL_IMGVIEWS_PER_PICTURE;
 
         setAvatars();
 
-
-        selectPreviousAvatar();
+        tintSelectedAvatar();
 
         for (int i = 0; i < avatarCount; i++) {
             imagesList.get(i).setOnClickListener(this::getSelectedAvatar);
@@ -107,9 +109,15 @@ public class AvatarActivity extends AppCompatActivity {
 
     }
 
-    private void selectPreviousAvatar() {
+    private void tintSelectedAvatar() {
+
         for (int i = 0; i < avatarCount; i++) {
-            if (prvlySelectedAvatar.getImageResId() == database.queryAvatar((long) i + 1).getImageResId()) {
+            if (imagesList.get(i).getAlpha() == ResourcesUtils.getFloat(this, R.dimen.avatar_selected_image_alpha)) {
+                deselectImageView(imagesList.get(i));
+            }
+        }
+        for (int i = 0; i < avatarCount; i++) {
+            if (model.getSelectedAvatar().getImageResId() == model.getDatabase().queryAvatar((long) i + 1).getImageResId()) {
                 selectImageView(imagesList.get(i));
             }
         }
@@ -120,22 +128,21 @@ public class AvatarActivity extends AppCompatActivity {
         long selectedAvatarID;
         for (int i = 0; i < avatarCount; i++) {
             if (v.getId() == namesList.get(i).getId() || v.getId() == imagesList.get(i).getId()) {
-                selectedAvatarID = avatarList.get(i).getId();
-                selectedAvatar = database.queryAvatar(selectedAvatarID);
+                selectedAvatarID = model.getAvatarList().get(i).getId();
+                model.setSelectedAvatar(model.getDatabase().queryAvatar(selectedAvatarID));
+                tintSelectedAvatar();
             }
         }
-        finish();
+
     }
 
     private void setAvatars() {
         String name;
         int imgID;
 
-        avatarList = database.queryAvatars();
-
         for (int i = 0; i < avatarCount; i++) {
-            name = avatarList.get(i).getName();
-            imgID = avatarList.get(i).getImageResId();
+            name = model.getAvatarList().get(i).getName();
+            imgID = model.getAvatarList().get(i).getImageResId();
             imagesList.get(i).setImageResource(imgID);
             namesList.get(i).setText(name);
         }
@@ -144,6 +151,10 @@ public class AvatarActivity extends AppCompatActivity {
 
     private void selectImageView(ImageView imageView) {
         imageView.setAlpha(ResourcesUtils.getFloat(this, R.dimen.avatar_selected_image_alpha));
+    }
+
+    private void deselectImageView(ImageView imageView) {
+        imageView.setAlpha(ResourcesUtils.getFloat(this, R.dimen.avatar_not_selected_image_alpha));
     }
 
     public static void startForResult(Activity actividad, int requestCode, Avatar avatar) {
@@ -160,7 +171,7 @@ public class AvatarActivity extends AppCompatActivity {
 
     private void sendAvatarBack() {
         Intent intent = new Intent();
-        intent.putExtra(EXTRA_AVATAR, selectedAvatar);
+        intent.putExtra(EXTRA_AVATAR, model.getSelectedAvatar());
         this.setResult(RESULT_OK, intent);
     }
 
